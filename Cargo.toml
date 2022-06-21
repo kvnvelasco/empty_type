@@ -1,0 +1,2 @@
+[workspace]
+members = ['crates/empty_type_derive', 'crates/empty_type', 'crates/empty_type_traits']
