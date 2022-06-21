@@ -1,6 +1,6 @@
 [package]
 name = "empty_type_derive"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Kevin Velasco <me@kvnvelasco.com>"]
 description = "A `cargo generate` template for quick-starting a procedural macro crate"
 keywords = ["template", "proc_macro", "procmacro"]
@@ -13,7 +13,7 @@ proc-macro = true
 quote = "1"
 proc-macro2 = "1.0"
 syn = { version = "1.0", features = ['full']}
-empty_type_traits = { path = "../empty_type_traits"}
+empty_type_traits = { path = "../empty_type_traits", version = "0.1.0"}
 
 serde = { version = "1", optional = true }
 

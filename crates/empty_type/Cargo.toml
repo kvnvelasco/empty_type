@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-empty_type_traits = {path = "../empty_type_traits"}
-empty_type_derive = {path = "../empty_type_derive"}
+empty_type_traits = {path = "../empty_type_traits", version = "0.1.0"}
+empty_type_derive = {path = "../empty_type_derive", version = "0.1.0" }
 
 [features]
 serde = ["empty_type_traits/serde", "empty_type_derive/serde"]
