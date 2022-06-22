@@ -5,6 +5,32 @@ to create structures with optional members and provides an api
 convert between the two.
 
 ```rust
+use empty_type::{EmptyType, Empty};
+
+#[derive(EmptyType)]
+#[empty(deserialize, default)]
+struct Data {
+    key: String,
+    mismatch: usize
+}
+
+const JSON: &str = r#"{ "key": "value", "mismatch": "not a number" }"#; 
+
+
+fn main() {
+    let empty: Empty<Data> = serde_json::from_str(JSON).unwrap();
+    assert!(empty.key.is_some());
+    assert!(empty.mismatch.is_none());
+    
+    let resolved = empty.resolve();
+    assert_eq!(resolved.key.as_str(), "value");
+    // when the "default" flag is set, even serde errors get resolved
+    assert_eq!(resolved.mismatch, 0);
+}
+```
+
+The proc macro creates code roughly equivalent to the following
+```rust
 use empty_type::{EmptyType, Container};
 
 struct Data {
@@ -21,13 +47,13 @@ impl EmptyType for Data {
 }
 
 impl Container for OptionalData {
-    type Value = Data;
-    
-    fn try_open(&mut self) -> Result<Self::Value, Box<dyn std::error::Error>> {
-        Ok(Data {
-            key: self.key.open()
-        })
-    }
+#    type Value = Data;
+#    
+#    fn try_open(&mut self) -> Result<Self::Value, Box<dyn std::error::Error>> {
+#        Ok(Data {
+#            key: self.key.open()
+#        })
+#    }
 }
 
 // This allows conversion between the two types 
@@ -44,21 +70,6 @@ fn main() {
 The behavior above is tedious and complicated. The `proc_macro` [`EmptyType`] creates 
 the optional data structures for you with the feature `derive` enabled
 
-```rust
-use empty_type::EmptyType;
-
-#[derive(EmptyType)]
-struct Data {
-    key: String
-}
-
-fn main() {
-    let mut empty = Data::new_empty();
-    empty.key = Some(String::new());
-    // should be the default value
-    let resolved = empty.resolve();
-}
-```
 
 ## Serde 
 Serde support is provided by the feature flag `serde` and a helper function [`deserialize_empty`]

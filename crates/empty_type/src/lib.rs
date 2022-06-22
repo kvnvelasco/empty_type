@@ -1,5 +1,5 @@
 #![cfg_attr(docs_rs, feature(doc_cfg))]
-#![doc = include_str!("../../../README.md")]
+#![doc = include_str!("../README.md")]
 
 #[cfg(feature = "derive")]
 #[cfg_attr(docs_rs, doc(cfg(feature = "derive")))]

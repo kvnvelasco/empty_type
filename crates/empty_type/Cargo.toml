@@ -8,7 +8,7 @@ Tools to define and convert between types and their corresponding "maybe types"
 """
 license = "MIT OR Apache-2.0"
 
-readme = "../README.md"
+readme = "README.md"
 
 [package.metadata.docs.rs]
 # document all features
