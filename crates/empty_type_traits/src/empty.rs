@@ -1,5 +1,4 @@
 use crate::{Container, EmptyType};
-use serde::{Deserialize, Deserializer};
 use std::error::Error;
 use std::ops::{Deref, DerefMut};
 
@@ -27,13 +26,13 @@ where
 impl<'de, F> serde::Deserialize<'de> for Empty<F>
 where
     F: EmptyType,
-    F::Container: Deserialize<'de>,
+    F::Container: serde::Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: Deserializer<'de>,
+        D: serde::Deserializer<'de>,
     {
-        let value: F::Container = <F::Container as Deserialize>::deserialize(deserializer)?;
+        let value: F::Container = <F::Container as serde::Deserialize>::deserialize(deserializer)?;
 
         Ok(Self(value, Default::default()))
     }
