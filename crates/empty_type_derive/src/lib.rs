@@ -107,7 +107,7 @@ fn create_impl_for_output(
 
     let field_unwrapping = if type_information.is_tuple_struct() {
         let exprs = field_unwrapping.into_iter().map(|f| f.expr);
-        quote! { ( #(#exprs)* ) }
+        quote! { ( #(#exprs),* ) }
     } else {
         quote! { { #field_unwrapping } }
     };

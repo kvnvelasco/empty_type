@@ -1,9 +1,11 @@
 [package]
 name = "empty_type_derive"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Kevin Velasco <me@kvnvelasco.com>"]
 keywords = ["serde", "proc_macro", "procmacro", "optional"]
 license = "MIT OR Apache-2.0"
+
+readme = "./README.md"
 
 edition = "2018"
 

@@ -7,7 +7,7 @@ struct TestStruct {
 }
 
 #[derive(EmptyType)]
-struct Data(String);
+struct Data(String, usize);
 
 #[test]
 fn empty_type_can_be_instantiated() {
