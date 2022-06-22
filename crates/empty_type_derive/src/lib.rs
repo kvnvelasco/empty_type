@@ -1,3 +1,5 @@
+#![cfg_attr(docs_rs, feature(doc_cfg))]
+
 use proc_macro::TokenStream;
 
 use quote::quote;
@@ -5,20 +7,19 @@ use syn::{parse_macro_input, DeriveInput, Fields};
 
 use crate::attribute::find_path_of_attribute;
 use crate::type_information::TypeInformation;
-use quote::ToTokens;
 
 mod fields;
 mod type_information;
 
 #[proc_macro_derive(EmptyType, attributes(empty))]
+#[cfg_attr(docs_rs, doc(cfg(feature = "derive")))]
+#[doc = include_str!("../README.md")]
 pub fn empty_type(input: TokenStream) -> TokenStream {
     create_struct_tokens(input)
 }
 
 #[derive(Default)]
 struct ContainerFlags {
-    #[cfg(feature = "serde")]
-    bounds: Option<syn::Lifetime>,
     default: bool,
     deserialize: bool,
 }
@@ -32,15 +33,6 @@ fn create_struct_tokens(input: TokenStream) -> TokenStream {
     let container_attributes = ContainerFlags {
         default: find_path_of_attribute(&input.attrs, "default").is_some(),
         deserialize: find_path_of_attribute(&input.attrs, "deserialize").is_some(),
-
-        #[cfg(feature = "serde")]
-        bounds: attribute::get_attribute_value(&input.attrs, "bounds").map(|v| {
-            if let syn::Lit::Str(lit_str) = v {
-                lit_str.parse().unwrap()
-            } else {
-                panic!("")
-            }
-        }),
     };
 
     let type_information = crate::type_information::TypeInformation::new(input);
@@ -53,7 +45,7 @@ fn create_struct_tokens(input: TokenStream) -> TokenStream {
         None
     };
 
-    let input_impls = { Some(create_input_impls(&type_information, &container_attributes)) };
+    let input_impls = { Some(create_input_impls(&type_information)) };
 
     #[cfg(feature = "serde")]
     let derive = if container_attributes.deserialize {
@@ -90,74 +82,15 @@ fn create_struct_tokens(input: TokenStream) -> TokenStream {
     tokens.into()
 }
 
-fn create_input_impls(
-    type_information: &TypeInformation,
-    container_attributes: &ContainerFlags,
-) -> proc_macro2::TokenStream {
-    #[cfg(not(feature = "serde"))]
-    let prefix_lifetime: Option<proc_macro2::TokenStream> = None;
-
-    #[cfg(not(feature = "serde"))]
-    let infix_lifetime: Option<proc_macro2::TokenStream> = None;
-
-    #[cfg(feature = "serde")]
-    let prefix_lifetime = if let Some(lifetime) = &container_attributes.bounds {
-        Some(quote! { 'de: #lifetime  })
-    } else if container_attributes.deserialize {
-        Some(quote! { 'de })
-    } else {
-        None
-    };
-
-    #[cfg(feature = "serde")]
-    let infix_lifetime = if container_attributes.deserialize {
-        quote! {'de, }
-    } else {
-        quote! { 'static, }
-    };
-
-    let mut with_de_prefix_generics = type_information.prefix_generics.clone();
-    if let Some(prefix_lifetime) = prefix_lifetime {
-        with_de_prefix_generics
-            .params
-            .push(syn::parse_quote! { #prefix_lifetime })
-    };
-
-    let mut noned_fields = type_information.empty_fields().to_token_stream();
-
-    let derived_name = type_information.derived_struct_name();
+fn create_input_impls(type_information: &TypeInformation) -> proc_macro2::TokenStream {
+    let prefix_generics = &type_information.prefix_generics;
     let full_known_name = type_information.fully_qualified_wrapped_struct_name();
     let full_maybe_name = type_information.fully_qualified_derived_struct_name();
     let where_clause = &type_information.where_clause;
 
-    if type_information.is_tuple_struct() {
-        noned_fields = quote! { (#noned_fields) }
-    } else {
-        noned_fields = quote! { {#noned_fields} }
-    }
-
-    let deserialize_empty_impl = if container_attributes.deserialize {
-        quote! {
-            fn deserialize_empty<D>(deserializer: D) -> Result<empty_type::Empty<#full_maybe_name, #full_known_name>, D::Error>
-            where D: serde::Deserializer<'de > {
-                let value =  serde::Deserialize::deserialize(deserializer)?;
-                return Ok(empty_type::Empty(value, Default::default()));
-            }
-
-        }
-    } else {
-        quote! {}
-    };
-
     quote! {
-        impl#with_de_prefix_generics empty_type::EmptyType<#infix_lifetime #full_known_name> for #full_known_name#where_clause {
-         type Container = #full_maybe_name;
-
-         fn new_empty() -> empty_type::Empty<Self::Container, #full_known_name> {
-            return empty_type::Empty(#derived_name#noned_fields, Default::default());
-         }
-
-         #deserialize_empty_impl
+        impl#prefix_generics empty_type::EmptyType for #full_known_name#where_clause {
+            type Container = #full_maybe_name;
         }
     }
 }
@@ -166,19 +99,18 @@ fn create_impl_for_output(
     type_information: &TypeInformation,
     container_flags: &ContainerFlags,
 ) -> proc_macro2::TokenStream {
-    let mut field_unwrapping = if container_flags.default {
-        type_information
-            .fields_uwnrapped_default()
-            .to_token_stream()
+    let field_unwrapping = if container_flags.default {
+        type_information.fields_uwnrapped_default()
     } else {
-        type_information.fields_unwrapped().to_token_stream()
+        type_information.fields_unwrapped()
     };
 
-    if type_information.is_tuple_struct() {
-        field_unwrapping = quote! { ( #field_unwrapping ) }
+    let field_unwrapping = if type_information.is_tuple_struct() {
+        let exprs = field_unwrapping.into_iter().map(|f| f.expr);
+        quote! { ( #(#exprs)* ) }
     } else {
-        field_unwrapping = quote! { { #field_unwrapping } }
-    }
+        quote! { { #field_unwrapping } }
+    };
 
     let prefix_generics = &type_information.prefix_generics;
     let fully_qualified_derive_name = type_information.fully_qualified_derived_struct_name();

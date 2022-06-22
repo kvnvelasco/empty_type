@@ -106,10 +106,6 @@ impl TypeInformation {
         fields
     }
 
-    pub fn empty_fields(&self) -> Punctuated<FieldValue, Token![,]> {
-        crate::fields::create_empty_field_tokens(&self.fields)
-    }
-
     pub fn is_tuple_struct(&self) -> bool {
         matches!(&self.fields, &Fields::Unnamed(_))
     }

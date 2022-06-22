@@ -1,12 +1,13 @@
+use empty_type::EmptyType;
 use empty_type_derive::EmptyType;
-use empty_type_traits as empty_type;
-use empty_type_traits::EmptyType;
-use std::ops::Deref;
 
 #[derive(EmptyType)]
 struct TestStruct {
     value: Option<&'static str>,
 }
+
+#[derive(EmptyType)]
+struct Data(String);
 
 #[test]
 fn empty_type_can_be_instantiated() {
@@ -18,7 +19,7 @@ fn empty_type_can_be_instantiated() {
 fn empty_type_can_be_unwrapped() {
     use std::ops::DerefMut;
     let mut empty = TestStruct::new_empty();
-    let mut ptr = empty.value.deref_mut();
+    let ptr = empty.value.deref_mut();
     *ptr = Some("str");
 
     let unwrapped = empty.resolve();

@@ -1,11 +1,10 @@
+use empty_type::{deserialize_empty, EmptyType};
 use empty_type_derive::EmptyType;
-use empty_type_traits as empty_type;
-use empty_type_traits::EmptyType;
 use serde::Deserialize;
 use std::borrow::Cow;
 
 #[derive(EmptyType, Deserialize)]
-#[empty(deserialize, bounds = "'a")]
+#[empty(deserialize)]
 struct TestStruct<'a> {
     #[serde(borrow)]
     value: Inner<'a>,
@@ -30,7 +29,7 @@ fn empty_type_can_be_deserialized() {
     "#;
 
     let mut de = serde_json::Deserializer::from_str(json);
-    let value = TestStruct::deserialize_empty(&mut de).unwrap();
+    let value = deserialize_empty::<TestStruct, _>(&mut de).unwrap();
 
     assert!(value.value.is_some());
 

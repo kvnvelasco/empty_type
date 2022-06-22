@@ -1,7 +1,5 @@
+use empty_type::EmptyType;
 use empty_type_derive::EmptyType;
-use empty_type_traits as empty_type;
-use empty_type_traits::EmptyType;
-
 #[derive(EmptyType, Default)]
 #[empty(default)]
 struct TestStruct {

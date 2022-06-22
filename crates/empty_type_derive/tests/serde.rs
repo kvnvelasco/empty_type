@@ -1,7 +1,5 @@
+use empty_type::EmptyType;
 use empty_type_derive::EmptyType;
-use empty_type_traits as empty_type;
-use empty_type_traits::Container;
-use empty_type_traits::EmptyType;
 use serde::Deserialize;
 
 #[derive(EmptyType, Deserialize)]
@@ -27,7 +25,7 @@ fn empty_type_can_be_deserialized() {
         }
     "#;
 
-    let value: <TestStruct as EmptyType<_>>::Container = serde_json::from_str(json).unwrap();
+    let value: <TestStruct as EmptyType>::Container = serde_json::from_str(json).unwrap();
     assert!(value.value);
     assert!(value.valuer.is_some());
 

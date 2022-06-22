@@ -1,3 +1,5 @@
+#![cfg_attr(docs_rs, feature(doc_cfg))]
+
 mod empty;
 mod fallible;
 
@@ -61,22 +63,39 @@ impl<V> Container for Option<V> {
     }
 }
 
-#[cfg(not(feature = "serde"))]
-pub trait EmptyType<F> {
-    type Container: Container;
-    fn new_empty() -> Empty<Self::Container, F>;
+pub trait EmptyType
+where
+    Self: Sized,
+{
+    type Container: Container + Default;
+
+    fn new_container() -> Self::Container {
+        Default::default()
+    }
+    fn new_empty() -> Empty<Self> {
+        Empty(Self::new_container(), Default::default())
+    }
 }
 
+/// Used to deserialize a given type into its coreesponding EmptyType
+///
+/// ```text
+/// #[derive(EmptyType)
+/// #[empty(deserialize)]
+/// struct Data(usize);
+///
+/// let value = deserialize_empty::<Data, _>(&mut de);
+/// ```
 #[cfg(feature = "serde")]
-pub trait EmptyType<'de, F> {
-    type Container: Container;
+#[cfg_attr(docs_rs, doc(cfg(feature = "serde")))]
+pub fn deserialize_empty<'de, T, D>(de: D) -> Result<Empty<T>, D::Error>
+where
+    T: EmptyType,
+    D: serde::Deserializer<'de>,
+    T::Container: serde::Deserialize<'de>,
+{
+    use serde::Deserialize;
+    let value = T::Container::deserialize(de)?;
 
-    fn new_empty() -> Empty<Self::Container, F>;
-
-    fn deserialize_empty<D>(_deserializer: D) -> Result<Empty<Self::Container, F>, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        unimplemented!()
-    }
+    Ok(Empty(value, Default::default()))
 }

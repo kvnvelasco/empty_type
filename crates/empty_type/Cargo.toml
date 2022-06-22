@@ -10,12 +10,22 @@ license = "MIT OR Apache-2.0"
 
 readme = "../README.md"
 
+[package.metadata.docs.rs]
+# document all features
+all-features = true
+# defines the configuration attribute `docsrs`
+rustdoc-args = ["--cfg", "docs_rs"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 empty_type_traits = {path = "../empty_type_traits", version = "0.1.0"}
 empty_type_derive = {path = "../empty_type_derive", version = "0.1.0", optional = true }
 
+
+[dev-dependencies]
+serde = "1"
+serde_json = "1"
 [features]
 derive = ["empty_type_derive"]
 serde = ["empty_type_traits/serde", "empty_type_derive/serde"]

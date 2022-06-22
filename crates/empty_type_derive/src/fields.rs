@@ -39,10 +39,6 @@ pub fn wrap_field_in_option(field: &mut Field) {
     field.ty = parse_quote! { std::option::Option<#ty>}
 }
 
-pub fn create_empty_field_value(_field: &Field) -> syn::Expr {
-    parse_quote! { std::default::Default::default() }
-}
-
 pub fn create_unwraped_fields(fields: &Fields) -> Punctuated<FieldValue, Token![,]> {
     map_fields_to_values(fields, |field, member| FieldValue {
         attrs: vec![],
@@ -92,13 +88,4 @@ pub fn map_fields_to_values(
             .collect(),
         Fields::Unit => Default::default(),
     }
-}
-
-pub fn create_empty_field_tokens(fields: &Fields) -> Punctuated<FieldValue, Token![,]> {
-    map_fields_to_values(fields, |field, member| FieldValue {
-        attrs: vec![],
-        member,
-        colon_token: field.colon_token.clone(),
-        expr: create_empty_field_value(field),
-    })
 }

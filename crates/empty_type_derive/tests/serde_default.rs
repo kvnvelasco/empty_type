@@ -1,8 +1,6 @@
+use empty_type::{deserialize_empty, EmptyType};
 use empty_type_derive::EmptyType;
-use empty_type_traits as empty_type;
-use empty_type_traits::EmptyType;
 use serde::Deserialize;
-use std::borrow::Cow;
 
 #[derive(EmptyType, Deserialize)]
 #[empty(deserialize, default)]
@@ -24,7 +22,7 @@ fn empty_type_deserializes_to_default() {
     let json = r#" {}  "#;
 
     let mut de = serde_json::Deserializer::from_str(json);
-    let value = TestStruct::deserialize_empty(&mut de).unwrap();
+    let value = deserialize_empty::<TestStruct, _>(&mut de).unwrap();
 
     // This resolved to none but still worked
     assert!(value.value.is_none());
@@ -40,7 +38,7 @@ fn invalid_deserialization_still_produces_values() {
     }  "#;
 
     let mut de = serde_json::Deserializer::from_str(json);
-    let value = TestStruct::deserialize_empty(&mut de).unwrap();
+    let value = deserialize_empty::<TestStruct, _>(&mut de).unwrap();
 
     // This resolved to none but still worked
     assert!(value.value.is_none());
