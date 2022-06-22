@@ -3,11 +3,14 @@ name = "empty_type"
 version = "0.2.2"
 edition = "2021"
 keywords = ["proc_macro", "serde", "optionals", "maybe_types"]
+repository = "https://github.com/kvnvelasco/empty_type"
 description = """
 Tools to define and convert between types and their corresponding "maybe types"
 """
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/kvnvelasco/empty_type"
+
+license = "Apache-2.0"
+license-file = "./LICENSE"
+
 readme = "README.md"
 
 [package.metadata.docs.rs]
