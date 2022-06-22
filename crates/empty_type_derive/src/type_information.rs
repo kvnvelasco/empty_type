@@ -1,4 +1,4 @@
-use crate::fields::create_unwraped_fields;
+use crate::fields::{create_unwraped_fields, create_unwrapped_default_fields};
 use crate::ContainerFlags;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};
@@ -69,6 +69,10 @@ impl TypeInformation {
 
     pub fn fields_unwrapped(&self) -> Punctuated<FieldValue, Token![,]> {
         create_unwraped_fields(&self.fields)
+    }
+
+    pub fn fields_uwnrapped_default(&self) -> Punctuated<FieldValue, Token![,]> {
+        create_unwrapped_default_fields(&self.fields)
     }
 
     pub(crate) fn fields_wrapped_in_options(

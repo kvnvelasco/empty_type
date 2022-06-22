@@ -2,9 +2,19 @@
 name = "empty_type_derive"
 version = "0.1.0"
 authors = ["Kevin Velasco <me@kvnvelasco.com>"]
-description = "A `cargo generate` template for quick-starting a procedural macro crate"
-keywords = ["template", "proc_macro", "procmacro"]
+keywords = ["serde", "proc_macro", "procmacro", "optional"]
+license = "MIT OR Apache-2.0"
+
 edition = "2018"
+
+description = """
+Converting between types and their optional counterparts
+"""
+
+categories = [
+    'encoding',
+]
+
 
 [lib]
 proc-macro = true

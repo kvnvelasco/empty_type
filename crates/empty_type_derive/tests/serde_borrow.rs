@@ -1,7 +1,6 @@
 use empty_type_derive::EmptyType;
 use empty_type_traits as empty_type;
 use empty_type_traits::EmptyType;
-use empty_type_traits::Unwrap;
 use serde::Deserialize;
 use std::borrow::Cow;
 
@@ -35,7 +34,7 @@ fn empty_type_can_be_deserialized() {
 
     assert!(value.value.is_some());
 
-    let value = value.unwrap();
+    let value = value.resolve();
 
     assert!(
         matches!(&value.value, &Inner(Cow::Borrowed(_))),

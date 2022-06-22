@@ -1,7 +1,6 @@
 use empty_type_derive::EmptyType;
 use empty_type_traits as empty_type;
 use empty_type_traits::EmptyType;
-use empty_type_traits::Unwrap;
 
 #[derive(EmptyType, Default)]
 #[empty(default)]
@@ -23,7 +22,7 @@ fn empty_type_can_be_instantiated() {
 #[test]
 fn unwrapping_produces_default_value() {
     let empty = TestStruct::new_empty();
-    let full = empty.unwrap();
+    let full = empty.resolve();
 
     assert_eq!(full.value.value, false);
 }

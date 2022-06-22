@@ -1,7 +1,7 @@
 use empty_type_derive::EmptyType;
 use empty_type_traits as empty_type;
 use empty_type_traits::EmptyType;
-use empty_type_traits::Unwrap;
+use std::ops::Deref;
 
 #[derive(EmptyType)]
 struct TestStruct {
@@ -21,6 +21,6 @@ fn empty_type_can_be_unwrapped() {
     let mut ptr = empty.value.deref_mut();
     *ptr = Some("str");
 
-    let unwrapped = empty.unwrap();
+    let unwrapped = empty.resolve();
     assert!(unwrapped.value.is_some());
 }

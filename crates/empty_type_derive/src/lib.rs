@@ -98,7 +98,7 @@ fn create_input_impls(
     let prefix_lifetime: Option<proc_macro2::TokenStream> = None;
 
     #[cfg(not(feature = "serde"))]
-    let infix_lifetime = quote! {'static};
+    let infix_lifetime: Option<proc_macro2::TokenStream> = None;
 
     #[cfg(feature = "serde")]
     let prefix_lifetime = if let Some(lifetime) = &container_attributes.bounds {
@@ -111,9 +111,9 @@ fn create_input_impls(
 
     #[cfg(feature = "serde")]
     let infix_lifetime = if container_attributes.deserialize {
-        quote! {'de }
+        quote! {'de, }
     } else {
-        quote! { 'static }
+        quote! { 'static, }
     };
 
     let mut with_de_prefix_generics = type_information.prefix_generics.clone();
@@ -150,7 +150,7 @@ fn create_input_impls(
     };
 
     quote! {
-        impl#with_de_prefix_generics empty_type::EmptyType<#infix_lifetime, #full_known_name> for #full_known_name#where_clause {
+        impl#with_de_prefix_generics empty_type::EmptyType<#infix_lifetime #full_known_name> for #full_known_name#where_clause {
          type Container = #full_maybe_name;
 
          fn new_empty() -> empty_type::Empty<Self::Container, #full_known_name> {
@@ -166,7 +166,13 @@ fn create_impl_for_output(
     type_information: &TypeInformation,
     container_flags: &ContainerFlags,
 ) -> proc_macro2::TokenStream {
-    let mut field_unwrapping = type_information.fields_unwrapped().to_token_stream();
+    let mut field_unwrapping = if container_flags.default {
+        type_information
+            .fields_uwnrapped_default()
+            .to_token_stream()
+    } else {
+        type_information.fields_unwrapped().to_token_stream()
+    };
 
     if type_information.is_tuple_struct() {
         field_unwrapping = quote! { ( #field_unwrapping ) }
@@ -180,31 +186,13 @@ fn create_impl_for_output(
     let where_clause = &type_information.where_clause;
     let wrapped_name = &type_information.wrapped_struct_name;
 
-    let unwrap_default_impl = if container_flags.default {
-        Some(quote! {
-            fn unwrap_or_default(self) -> Self::Value
-            where
-                Self: Sized,
-                Self::Value: std::default::Default {
-                return #wrapped_name::default();
-            }
-        })
-    } else {
-        None
-    };
     quote! {
-        impl#prefix_generics empty_type::Unwrap for #fully_qualified_derive_name#where_clause {
+        impl#prefix_generics empty_type::Container for #fully_qualified_derive_name#where_clause {
             type Value = #fully_qualified_wrapped_name;
 
-            fn unwrap(self) -> Self::Value {
-                return #wrapped_name#field_unwrapping
+            fn try_open(&mut self) -> Result<Self::Value, Box<dyn std::error::Error>> {
+                return Ok(#wrapped_name#field_unwrapping)
             }
-
-            fn unwrap_with_hint(self, _hint: &'static str) -> Self::Value {
-                return self.unwrap();
-            }
-
-            #unwrap_default_impl
         }
     }
 }
