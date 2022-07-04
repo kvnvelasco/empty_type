@@ -53,7 +53,7 @@ where
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: serde::Deserializer<'de>,
+        D: Deserializer<'de>,
     {
         let visitor: DelegateVisitor<T> = DelegateVisitor {
             original_type: Default::default(),
@@ -65,8 +65,9 @@ where
     }
 }
 
-// Will attempt to deserialize every possible value but also
-// drive a deserializer to completion even if the value fails to deserialize
+// The delegate visitor is will delegate any value it extracts out
+// of the deserializer into the passed type. When it fails, it will
+// return the default value T
 struct DelegateVisitor<T> {
     original_type: PhantomData<T>,
 }
