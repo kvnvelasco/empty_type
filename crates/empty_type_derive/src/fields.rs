@@ -17,6 +17,7 @@
 use quote::ToTokens;
 use syn::punctuated::Punctuated;
 
+use crate::find_path_of_attribute;
 use syn::{parse_quote, Field, FieldValue, Fields, Index, Member, PathArguments, Token};
 
 pub fn field_type_is_literally(field: &Field, literally: &'static str) -> bool {
@@ -52,17 +53,30 @@ pub fn wrap_field_in_option(field: &mut Field) {
     }
 
     let ty = field.ty.clone();
-    field.ty = parse_quote! { std::option::Option<#ty>}
+    field.ty = parse_quote! { std::option::Option<#ty>};
 }
 
 pub fn create_unwraped_fields(fields: &Fields) -> Punctuated<FieldValue, Token![,]> {
-    map_fields_to_values(fields, |field, member| FieldValue {
-        attrs: vec![],
-        colon_token: field.colon_token.clone(),
-        expr: parse_quote! {
-            empty_type::Container::try_open_with_meta(&mut self.#member, stringify!(#member))?
-        },
-        member,
+    map_fields_to_values(fields, |field, member| {
+        let attributes = &field.attrs;
+        let output_type = if find_path_of_attribute(attributes, "default").is_some()
+            || find_path_of_attribute(attributes, "fail_safe").is_some()
+        {
+            parse_quote! {
+               empty_type::Container::open_or_default(&mut self.#member)
+            }
+        } else {
+            parse_quote! {
+                empty_type::Container::try_open_with_meta(&mut self.#member, stringify!(#member))?
+            }
+        };
+
+        FieldValue {
+            attrs: vec![],
+            colon_token: field.colon_token.clone(),
+            expr: output_type,
+            member,
+        }
     })
 }
 

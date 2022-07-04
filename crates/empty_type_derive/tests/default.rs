@@ -17,7 +17,7 @@
 use empty_type::EmptyType;
 use empty_type_derive::EmptyType;
 #[derive(EmptyType, Default)]
-#[empty(default)]
+#[empty(fail_safe)]
 struct TestStruct {
     value: Nested,
 }

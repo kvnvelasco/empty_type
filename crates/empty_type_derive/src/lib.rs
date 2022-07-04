@@ -36,7 +36,7 @@ pub fn empty_type(input: TokenStream) -> TokenStream {
 
 #[derive(Default)]
 struct ContainerFlags {
-    default: bool,
+    fail_safe: bool,
     deserialize: bool,
 }
 
@@ -47,7 +47,7 @@ fn create_struct_tokens(input: TokenStream) -> TokenStream {
     let viz = input.vis.clone();
     // get the required bounds for serde destructuring '
     let container_attributes = ContainerFlags {
-        default: find_path_of_attribute(&input.attrs, "default").is_some(),
+        fail_safe: find_path_of_attribute(&input.attrs, "fail_safe").is_some(),
         deserialize: find_path_of_attribute(&input.attrs, "deserialize").is_some(),
     };
 
@@ -115,7 +115,7 @@ fn create_impl_for_output(
     type_information: &TypeInformation,
     container_flags: &ContainerFlags,
 ) -> proc_macro2::TokenStream {
-    let field_unwrapping = if container_flags.default {
+    let field_unwrapping = if container_flags.fail_safe {
         type_information.fields_uwnrapped_default()
     } else {
         type_information.fields_unwrapped()

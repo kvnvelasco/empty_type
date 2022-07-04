@@ -49,7 +49,7 @@ pub trait Container {
     ) -> Result<Self::Value, Box<dyn std::error::Error>> {
         self.try_open().map_err(|_| {
             format!(
-                "Failed to resolve field {}. Opened to `None` value",
+                "Failed to resolve field `{}`. Opened to `None` value",
                 field_name
             )
             .into()

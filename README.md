@@ -8,7 +8,7 @@ convert between the two.
 use empty_type::{EmptyType, Empty};
 
 #[derive(EmptyType)]
-#[empty(deserialize, default)]
+#[empty(deserialize, fail_safe)]
 struct Data {
     key: String,
     mismatch: usize

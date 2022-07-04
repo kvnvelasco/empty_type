@@ -18,7 +18,7 @@ use syn::{Attribute, Lit, Meta, NestedMeta, Path};
 
 const ATTRIBUTE_NAME: &str = "empty";
 
-fn filter_attrs_by_own(attribute: &Attribute) -> bool {
+pub fn filter_attrs_by_own(attribute: &Attribute) -> bool {
     attribute.path.is_ident(ATTRIBUTE_NAME)
 }
 

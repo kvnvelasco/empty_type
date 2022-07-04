@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+use crate::attribute::filter_attrs_by_own;
 use crate::fields::{create_unwraped_fields, create_unwrapped_default_fields};
-use crate::ContainerFlags;
+use crate::{find_path_of_attribute, ContainerFlags};
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};
 use syn::punctuated::Punctuated;
@@ -99,18 +100,36 @@ impl TypeInformation {
         match &mut fields {
             Fields::Named(named_field) => named_field.named.iter_mut().for_each(|f| {
                 crate::fields::wrap_field_in_option(f);
-                if container_attributes.default {
+
+                if container_attributes.fail_safe
+                    || find_path_of_attribute(&f.attrs, "fail_safe").is_some()
+                {
                     crate::fields::wrap_option_in_fallable(f);
                 }
+
+                // filter the field's attributes.
+                f.attrs = std::mem::take(&mut f.attrs)
+                    .into_iter()
+                    .filter(|f| !filter_attrs_by_own(f))
+                    .collect();
                 if !container_attributes.deserialize {
                     f.attrs.clear()
                 }
             }),
             Fields::Unnamed(unnamed_field) => unnamed_field.unnamed.iter_mut().for_each(|f| {
                 crate::fields::wrap_field_in_option(f);
-                if container_attributes.default {
+
+                if container_attributes.fail_safe
+                    || find_path_of_attribute(&f.attrs, "fail_safe").is_some()
+                {
                     crate::fields::wrap_option_in_fallable(f);
                 }
+
+                // filter the field's attributes.
+                f.attrs = std::mem::take(&mut f.attrs)
+                    .into_iter()
+                    .filter(|f| !filter_attrs_by_own(f))
+                    .collect();
 
                 if !container_attributes.deserialize {
                     f.attrs.clear()
