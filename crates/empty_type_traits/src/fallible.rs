@@ -16,16 +16,17 @@
 
 use crate::Container;
 
-use serde::{de, Deserialize, Deserializer};
 use std::error::Error;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
-use serde::de::value;
-use serde::de::value::{MapAccessDeserializer, SeqAccessDeserializer};
 #[cfg(feature = "serde")]
-use serde::de::{EnumAccess, IntoDeserializer, MapAccess, SeqAccess, Visitor};
+use serde::de::{
+    self,
+    value::{self, MapAccessDeserializer, SeqAccessDeserializer},
+    Deserialize, Deserializer, EnumAccess, IntoDeserializer, MapAccess, SeqAccess, Visitor,
+};
 
 pub struct Fallible<T>(T);
 
