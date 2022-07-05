@@ -15,7 +15,6 @@
  */
 
 use crate::Container;
-use std::convert::Infallible;
 
 use serde::{de, Deserialize, Deserializer};
 use std::error::Error;
@@ -24,7 +23,7 @@ use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
 use serde::de::value;
-use serde::de::value::{BoolDeserializer, MapAccessDeserializer, SeqAccessDeserializer};
+use serde::de::value::{MapAccessDeserializer, SeqAccessDeserializer};
 #[cfg(feature = "serde")]
 use serde::de::{EnumAccess, IntoDeserializer, MapAccess, SeqAccess, Visitor};
 

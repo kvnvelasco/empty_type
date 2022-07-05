@@ -9,7 +9,6 @@ Tools to define and convert between types and their corresponding "maybe types"
 """
 
 license = "Apache-2.0"
-license-file = "./LICENSE"
 
 readme = "README.md"
 
